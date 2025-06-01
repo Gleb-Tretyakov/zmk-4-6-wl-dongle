@@ -1,155 +1,163 @@
-#include <dt-bindings/zmk/mouse.h>
+/*
+    Стабильный ZMK конфиг для Charybdis 4x6
+    Copyright (c) 2023 The ZMK Contributors
+    SPDX-License-Identifier: MIT
+*/
+
 #include <behaviors.dtsi>
-#include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/keys.h>
+#include <dt-bindings/zmk/bt.h>
 #include <dt-bindings/zmk/outputs.h>
 
+#define BASE 0
+#define LOWER 1
+#define SYMB 2
+#define NAV 3
+#define ADJUST 4
+#define QWERTY 5
+
+&lt {
+    tapping-term-ms = <200>;
+    quick-tap-ms = <125>;
+    flavor = "tap-preferred";
+};
+
+&mt {
+    tapping-term-ms = <200>;
+    quick-tap-ms = <125>;
+    flavor = "tap-preferred";
+};
 
 / {
     combos {
         compatible = "zmk,combos";
-
-        ParaLeft {
-            bindings = <&kp LEFT_PARENTHESIS>;
-            key-positions = <4 16>;
+        
+        combo_esc {
+            timeout-ms = <50>;
+            key-positions = <13 14>;
+            bindings = <&kp ESC>;
         };
-
-        ParaRight {
-            bindings = <&kp RIGHT_PARENTHESIS>;
-            key-positions = <7 19>;
+        
+        combo_caps {
+            timeout-ms = <50>;
+            key-positions = <16 19>;
+            bindings = <&caps_word>;
         };
-
-        bootloaderLeft {
-            bindings = <&bootloader>;
-            key-positions = <0 13>;
-        };
-
-        bootloaderRight {
-            bindings = <&bootloader>;
-            key-positions = <11 22>;
-        };
-
-        resetLeft {
-            bindings = <&sys_reset>;
-            key-positions = <0 12>;
-        };
-
-        resetRight {
-            bindings = <&sys_reset>;
-            key-positions = <11 23>;
-        };
-    };
-
-    trackball_listener {
-        compatible = "zmk,input-behavior-listener";
-        device = <&vtrackball>;
-        layers = <0 2 3 4 5>;
-        evt-type = <INPUT_EV_REL>;
-        x-input-code = <INPUT_REL_X>;
-        y-input-code = <INPUT_REL_Y>;
-        scale-multiplier = <1>;
-        scale-divisor = <1>;
-        bindings = <&ib_toggle_layer 5>;
-    };
-
-    trackball_snipe_listener {
-        compatible = "zmk,input-behavior-listener";
-        device = <&vtrackball>;
-        layers = <>;
-        evt-type = <INPUT_EV_REL>;
-        x-input-code = <INPUT_REL_X>;
-        y-input-code = <INPUT_REL_Y>;
-        scale-multiplier = <1>;
-        scale-divisor = <4>;
-    };
-
-    trackball_scroll_listener {
-        compatible = "zmk,input-behavior-listener";
-        device = <&vtrackball>;
-        layers = <1>;
-        evt-type = <INPUT_EV_REL>;
-        x-input-code = <INPUT_REL_MISC>;
-        y-input-code = <INPUT_REL_WHEEL>;
-        y-invert;
-        bindings = <&ib_wheel_scaler 1 16>;
-    };
-
-    ib_wheel_scaler: ib_wheel_scaler {
-        compatible = "zmk,input-behavior-scaler";
-        #binding-cells = <2>;
-        evt-type = <INPUT_EV_REL>;
-        input-code = <INPUT_REL_WHEEL>;
-    };
-
-    ib_toggle_layer: ib_toggle_layer {
-        compatible = "zmk,input-behavior-tog-layer";
-        #binding-cells = <1>;
-        time-to-live-ms = <750>;
     };
 
     behaviors {
-        lt: layer_tap {
+        hml: homerow_mods_left {
             compatible = "zmk,behavior-hold-tap";
             #binding-cells = <2>;
-            flavor = "balanced";
-            tapping-term-ms = <240>;
-            quick-tap-ms = <150>;
-            bindings = <&mo>, <&kp>;
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+            hold-trigger-key-positions = <6 7 8 9 10 11 18 19 20 21 22 23 30 31 32 33 34 35>;
+        };
+
+        hmr: homerow_mods_right {
+            compatible = "zmk,behavior-hold-tap";
+            #binding-cells = <2>;
+            tapping-term-ms = <280>;
+            quick-tap-ms = <175>;
+            flavor = "tap-preferred";
+            bindings = <&kp>, <&kp>;
+            hold-trigger-key-positions = <0 1 2 3 4 5 12 13 14 15 16 17 24 25 26 27 28 29>;
+        };
+
+        dt_lang: dt_lang {
+            compatible = "zmk,behavior-tap-dance";
+            #binding-cells = <0>;
+            tapping-term-ms = <300>;
+            bindings = <&lang_switch>, <&to QWERTY>;
+        };
+    };
+
+    macros {
+        lang_switch: lang_switch {
+            compatible = "zmk,behavior-macro";
+            #binding-cells = <0>;
+            bindings = <&macro_press &kp LGUI>,
+                       <&macro_tap &kp SPACE>,
+                       <&macro_release &kp LGUI>;
+        };
+    };
+
+    conditional_layers {
+        compatible = "zmk,conditional-layers";
+        tri_layer {
+            if-layers = <LOWER SYMB>;
+            then-layer = <ADJUST>;
         };
     };
 
     keymap {
         compatible = "zmk,keymap";
 
-        Base {
-            label = "Base";
-            display-name = "Base";
+        base_layer {
             bindings = <
-&kp TILDE   &kp N1  &kp N2  &kp N3     &kp N4     &kp N5        &none  &none  &none  &none    &kp N6        &kp N7  &kp N8     &kp N9   &kp N0    &kp BACKSPACE
-&kp ESCAPE  &kp Q   &kp W   &kp E      &kp R      &kp T         &none  &none  &none  &none    &kp Y         &kp U   &kp I      &kp O    &kp P     &kp LEFT_BRACKET
-&kp TAB     &kp A   &kp S   &kp D      &kp F      &kp G         &none  &none                  &kp H         &kp J   &kp K      &kp L    &kp SEMI  &kp APOS
-&kp LSHFT   &kp Z   &kp X   &kp C      &kp V      &kp B                                       &kp N         &kp M   &kp COMMA  &kp DOT  &kp FSLH  &kp RIGHT_BRACKET
-                            &mkp LCLK  &kp SPACE  &kp LEFT_GUI                                &kp ENTER     &mo 1
-                                       &kp LCTRL  &mkp RCLK                                   &kp LEFT_ALT
+    &kp F1         &kp F2         &kp F3         &kp F4         &kp F5         &kp F6                     &kp F7         &kp F8         &kp F9         &kp F10        &kp F11        &kp F12
+    &kp TAB        &kp B          &kp Y          &kp O          &kp U          &kp SQT                    &kp MINUS      &kp L          &kp D          &kp W          &kp V          &kp Z
+    &kp ESC        &hml LGUI C    &hml LALT I    &hml LCTRL E   &hml LSHFT A   &kp COMMA                  &kp DOT        &hmr RSHFT H   &hmr RCTRL T   &hmr RALT S    &hmr RGUI N    &kp Q
+    &kp LSHFT      &kp G          &kp X          &kp J          &kp K          &kp SLASH                  &kp SEMI       &kp R          &kp M          &kp F          &kp P          &kp RSHFT
+                                                 &dt_lang       &lt LOWER SPACE &kp LGUI                  &kp RALT       &lt SYMB BSPC  &mo NAV
+                                                                &kp LCTRL      &kp ENTER
             >;
         };
 
-        Lower {
-            label = "Lower";
-            display-name = "Lower";
+        lower_layer {
             bindings = <
-&trans  &trans    &trans    &trans     &trans  &bootloader    &none  &none  &none  &none   &trans  &trans                &trans                 &trans         &trans     &trans
-&trans  &trans    &kp UP    &trans     &trans  &trans         &none  &none  &none  &none   &kp N7  &kp LEFT_PARENTHESIS  &kp RIGHT_PARENTHESIS  &kp LS(MINUS)  &kp PLUS   &kp F1
-&trans  &kp LEFT  &kp DOWN  &kp RIGHT  &trans  &trans         &none  &none                 &kp N4  &kp LEFT_BRACE        &kp RIGHT_BRACE        &kp MINUS      &kp EQUAL  &kp F10
-&trans  &trans    &trans    &trans     &trans  &trans                                      &kp N1  &kp LEFT_BRACKET      &kp RIGHT_BRACKET      &kp BACKSLASH  &kp PIPE   &kp F20
-                            &trans     &trans  &trans                                      &trans  &trans
-                                       &trans  &trans                                      &trans
+    &trans         &trans         &trans         &trans         &trans         &trans                     &trans         &trans         &trans         &trans         &trans         &trans
+    &kp GRAVE      &kp EXCL       &kp AT         &kp HASH       &kp DLLR       &kp PRCNT                  &kp CARET      &kp N7         &kp N8         &kp N9         &kp PLUS       &kp STAR
+    &trans         &kp AMPS       &kp LPAR       &kp RPAR       &kp UNDER      &kp MINUS                  &kp EQUAL      &kp N4         &kp N5         &kp N6         &kp DOT        &trans
+    &trans         &kp PIPE       &kp LBKT       &kp RBKT       &kp LBRC       &kp RBRC                   &kp N0         &kp N1         &kp N2         &kp N3         &kp FSLH       &trans
+                                                 &trans         &trans         &trans                     &trans         &kp DEL        &trans
+                                                                &trans         &trans
             >;
         };
 
-        Raise {
-            label = "Raise";
-            display-name = "Raise";
+        symbol_layer {
             bindings = <
-&trans  &trans        &trans       &trans      &trans    &trans     &none  &none  &none  &none    &bootloader  &sys_reset  &trans           &trans    &trans    &trans
-&trans  &kp EXCL      &kp AT       &kp HASH    &kp DLLR  &kp PRCNT  &none  &none  &none  &none    &kp CARET    &kp AMPS    &kp KP_MULTIPLY  &kp LPAR  &kp RPAR  &kp DEL
-&trans  &bt BT_CLR    &bt BT_PRV   &bt BT_NXT  &trans    &to 3      &none  &none                  &kp UNDER    &kp EQUAL   &kp LBKT         &kp RBKT  &kp BSLH  &kp GRAVE
-&trans  &out OUT_TOG  &bootloader  &trans      &trans    &trans                                   &kp MINUS    &kp PLUS    &kp LBRC         &kp RBRC  &kp PIPE  &kp TILDE
-                                   &trans      &trans    &trans                                   &trans       &trans
-                                               &trans    &trans                                   &trans
+    &trans         &trans         &trans         &trans         &trans         &trans                     &trans         &trans         &trans         &trans         &trans         &trans
+    &kp TILDE      &kp EXCL       &kp LT         &kp GT         &kp DQT        &kp PIPE                   &kp AMPS       &kp UNDER      &kp LBKT       &kp RBKT       &kp PRCNT      &kp BSPC
+    &kp GRAVE      &kp AT         &kp MINUS      &kp PLUS       &kp EQUAL      &kp HASH                   &kp PIPE       &kp COLON      &kp LPAR       &kp RPAR       &kp QMARK      &kp SQT
+    &trans         &kp CARET      &kp FSLH       &kp STAR       &kp BSLH       &none                      &kp TILDE      &kp DLLR       &kp LBRC       &kp RBRC       &kp AT         &trans
+                                                 &trans         &kp SPACE      &trans                     &trans         &trans         &trans
+                                                                &trans         &trans
             >;
         };
 
-        Game {
-            label = "Game";
-            display-name = "Game";
+        nav_layer {
             bindings = <
-&trans  &trans  &trans  &trans  &trans  &trans  &none  &none  &none  &none    &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans  &none  &none  &none  &none    &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &none   &none  &none                  &trans  &trans  &trans  &trans  &trans  &trans
-&trans  &trans  &trans  &trans  &trans  &trans                                &trans  &trans  &trans  &trans  &trans  &to 0
-                        &trans  &trans  &trans                                &trans  &trans
-                                &trans  &trans                                &trans
+    &trans         &trans         &trans         &trans         &trans         &trans                     &trans         &trans         &trans         &trans         &trans         &trans
+    &trans         &kp C_PREV     &kp C_PP       &kp C_NEXT     &kp C_VOL_UP   &trans                     &kp PG_UP      &kp HOME       &kp UP         &kp END        &trans         &trans
+    &trans         &kp LGUI       &kp LALT       &kp LCTRL      &kp LSHFT      &kp C_VOL_DN               &kp PG_DN      &kp LEFT       &kp DOWN       &kp RIGHT      &trans         &trans
+    &trans         &trans         &trans         &trans         &trans         &kp C_MUTE                 &trans         &trans         &trans         &trans         &trans         &trans
+                                                 &trans         &trans         &trans                     &trans         &trans         &trans
+                                                                &trans         &trans
+            >;
+        };
+
+        adjust_layer {
+            bindings = <
+    &trans         &bt BT_SEL 0   &bt BT_SEL 1   &bt BT_SEL 2   &bt BT_SEL 3   &bt BT_SEL 4               &trans         &trans         &trans         &trans         &trans         &trans
+    &trans         &bt BT_CLR     &trans         &trans         &trans         &out OUT_TOG               &trans         &kp C_VOL_UP   &kp C_MUTE     &kp C_VOL_DN   &trans         &trans
+    &trans         &trans         &trans         &trans         &trans         &trans                     &kp LEFT       &kp DOWN       &kp UP         &kp RIGHT      &trans         &trans
+    &trans         &bootloader    &sys_reset     &trans         &trans         &trans                     &kp HOME       &kp PG_DN      &kp PG_UP      &kp END        &trans         &trans
+                                                 &to BASE       &trans         &trans                     &trans         &trans         &to BASE
+                                                                &trans         &trans
+            >;
+        };
+
+        qwerty_layer {
+            bindings = <
+    &kp F1         &kp F2         &kp F3         &kp F4         &kp F5         &kp F6                     &kp F7         &kp F8         &kp F9         &kp F10        &kp F11        &kp F12
+    &kp TAB        &kp Q          &kp W          &kp E          &kp R          &kp T                      &kp Y          &kp U          &kp I          &kp O          &kp P          &kp LBKT
+    &kp ESC        &hml LGUI A    &hml LALT S    &hml LCTRL D   &hml LSHFT F   &kp G                      &kp H          &hmr RSHFT J   &hmr RCTRL K   &hmr RALT L    &hmr RGUI SEMI &kp SQT
+    &kp LSHFT      &kp Z          &kp X          &kp C          &kp V          &kp B                      &kp N          &kp M          &kp COMMA      &kp DOT        &kp RBKT       &kp RSHFT
+                                                 &to BASE       &lt LOWER SPACE &kp LGUI                  &kp RALT       &lt SYMB BSPC  &mo NAV
+                                                                &kp LCTRL      &kp ENTER
             >;
         };
     };
